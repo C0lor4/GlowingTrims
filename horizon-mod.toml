@@ -1,7 +1,7 @@
 id = "glowing_trims"
 name = "Glowing Trims"
-version = "1.1.0"
-description = "Give armor trims a sweeping highlight and a soft, material-colored glow."
+version = "1.2.0"
+description = "Render armor trim patterns as persistent material-colored emitters with a traveling highlight."
 authors = ["C0lor4"]
 api = "0.2"
 side = "client"
@@ -45,8 +45,7 @@ argument = 7
 helper = "src/mixins/stand_trim.rs"
 bindings = [{ name = "_light", ty = "u32", value = "$value" }]
 
-# The trim atlas provides its own shine. Keep its halo translucent on a stand;
-# the first armor layer still carries the item's original enchantment glint.
+# Set the trim's emission tier on the stand's final draw.
 [[native.mixin]]
 id = "armor_stand_trim_shine"
 target = "horizon_client::game::armor_stands::Game<'_>::armor_stand_vertices"
@@ -89,5 +88,17 @@ kind = "RETURN"
 helper = "src/mixins/atlas_finish.rs"
 bindings = [
     { name = "_unit", ty = "()", value = "$value" },
+    { name = "game", ty = "&mut Game<'_>", value = "&mut *self" },
+]
+
+# Apply the same unshaded normals as Horizon's emissive eyes to the trim
+# once player, remote mob and stand geometry are present in the world frame.
+[[native.mixin]]
+id = "flat_emissive_trim_faces"
+target = "horizon_client::game::Game<'_>::entity_geometry"
+kind = "RETURN"
+helper = "src/mixins/world_emission.rs"
+bindings = [
+    { name = "geometry", ty = "(Vec<Vertex>, Arc<[StaticSectionSnapshot]>, Vec<[i32; 3]>, StaticCacheFrameStats,)", value = "$value" },
     { name = "game", ty = "&mut Game<'_>", value = "&mut *self" },
 ]
