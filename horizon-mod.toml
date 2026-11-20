@@ -1,0 +1,44 @@
+id = "glowing_trims"
+name = "Glowing Trims"
+version = "1.0.0"
+description = "Draw worn armor trims at full light, preserving their material colors."
+authors = ["C0lor4"]
+api = "0.2"
+side = "client"
+capabilities = ["registries"]
+
+[native]
+game = "26.3"
+horizon = "6d765e0ea3207d5dddeee87b0c64e09222767993"
+mixins = "e59da9094f0c2fdda6c627fe9eff22dec6a906f0"
+
+# Keep the nightly's crate-visible TryIntoApi and block_state::install re-exports
+# in the same generated patch crate as their users.
+[[native.module]]
+id = "trim_light"
+file = "crates/horizon-client/src/game/modding/api_values/block_state.rs"
+name = "glowing_trims_light"
+source = "src/trim_light.rs"
+
+# The second false in this pinned function belongs to the dynamic trim layer.
+[[native.mixin]]
+id = "worn_trim_emission"
+target = "horizon_client::game::armor_stands::Game<'_>::armor_layers"
+kind = "MODIFY_CONSTANT"
+selector = "false"
+require = 2
+ordinal = 1
+helper = "src/mixins/worn_trim.rs"
+bindings = [{ name = "_ambient", ty = "bool", value = "$value" }]
+
+# The fifth put() draws the trim after the stand, armor and their emissive layers.
+[[native.mixin]]
+id = "armor_stand_trim_light"
+target = "horizon_client::game::armor_stands::Game<'_>::armor_stand_vertices"
+kind = "MODIFY_ARG"
+selector = "put"
+require = 5
+ordinal = 4
+argument = 7
+helper = "src/mixins/stand_trim.rs"
+bindings = [{ name = "_light", ty = "u32", value = "$value" }]
