@@ -4,4 +4,4 @@
 
 Armor trims now glows!
 
-**Supporting Version:**  `nightly-2026-11-18-6d765e0`（Minecraft 26.3）。
+**Supporting Version:**  Horizon 26.3 Nightly 2026-11-19（`f00125f`）
